@@ -1,31 +1,12 @@
 import numpy as np 
-
 import tensorflow as tf
 
-BYTE_MAX = 0xFF
-ASCII_MAX = 0x7F
-
-INPUT_SIZE = BYTE_MAX + 1
-TARGET_SIZE = ASCII_MAX + 1
-
-def one_hot_bytes(bytes): 
-    # one-hot encoding of passed bytes 
-    # returns a one-hot tensor with one row per byte and INPUT_SIZE (256) elements per row
-    # https://www.wikiwand.com/en/One-hot
-    # https://www.tensorflow.org/api_docs/python/tf/one_hot
-    return tf.one_hot(list(bytes), depth=INPUT_SIZE)
-
-def one_hot_ascii(str): 
-    # one-hot encoding of passed string 
-    # returns a one-hot tensor with one row per byte and TARGET_SIZE (128) elements per row
-    # https://www.wikiwand.com/en/One-hot
-    # https://www.tensorflow.org/api_docs/python/tf/one_hot
-    return tf.one_hot([ord(c) for c in str], depth=TARGET_SIZE)
+from disasseml.io.codec import ascii_to_one_hot, bytes_to_one_hot
 
 class TrainSet: 
     # class for operating with train set for model 
 
-    def __init__(self, file, x_encoder=one_hot_bytes, y_encoder=one_hot_ascii, shuffled=False) -> None:
+    def __init__(self, file, x_encoder=bytes_to_one_hot, y_encoder=ascii_to_one_hot, shuffled=False) -> None:
         '''
         file: path to file containing train set 
         x_encoder: callable to encode input bytes
