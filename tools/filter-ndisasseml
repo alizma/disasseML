@@ -1,0 +1,11 @@
+from signal import signal, SIGPIPE, SIG_DFL
+import sys
+
+if __name__ == '__main__':
+    signal(SIGPIPE, SIG_DFL)
+    for line in sys.stdin:
+        elems = line.split()
+        print('{}|{}'.format(
+            elems[1],
+            ' '.join(elems[2:])
+        ))
