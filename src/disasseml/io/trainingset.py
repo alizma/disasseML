@@ -62,10 +62,7 @@ class TrainSet:
             self._seek()
 
         ln = next(self._file)
-
-        while ln.startswith('#'): 
-            ln = next(self._file)
-
+        
         elms = ln.split('|')
         if len(elms) != 2:
             raise ValueError('Wrong line format in training file: {}'.format(ln))
