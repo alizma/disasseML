@@ -1,8 +1,18 @@
-import json 
-import pickle 
-import os 
+import os
+from h5py._hl.files import File 
 
-from disasseml.io.trainingset import TrainSet
+import numpy as np 
+
+import tensorflow as tf
+import tensorflow.keras as keras 
+
+try: 
+    # https://github.com/ultrajson/ultrajson
+    import ujson as json 
+except: 
+    import json 
+
+from disasseml.util import prof, log
 
 class FileManager:
     # https://www.tutorialspoint.com/python/os_getcwd.htm
@@ -18,6 +28,15 @@ class FileManager:
             raise ValueError("Can't change to given path")
         self._data_dir = path 
 
+    def establish(self, *args): 
+        return os.path.join(self._data_dir, *args)
+
+    ### CONFIGURATION SPECIFIC METHODS ### 
+    def _establish_config(self, name): 
+      # establishes path to config file 
+      # https://www.geeksforgeeks.org/python-os-path-join-method/ 
+      return self.establish(name, FileManager._config_name)
+
     def load_config(self, name, *args, **kwargs): 
         '''
         load configuration information 
@@ -32,21 +51,29 @@ class FileManager:
         # opens configuration file
         return open(self._establish_config(name), *args, **kwargs)
 
-    def _establish_config(self, name): 
-        # establishes path to config file 
-        # https://www.geeksforgeeks.org/python-os-path-join-method/ 
-        return os.path.join(self._data_dir, name, 'config.json')
+    def save_config(self, name, config): 
+        with self._open_config(name, 'w', newline='\n') as file: 
+            json.dump(config, file, indent=4, )
+            file.write('\n')
 
-    def open_model(self, name, *args, **kwargs): 
-        # opens model and returns a handle to the model file 
-        return open(self._establish_model(name), 'rb', *args, **kwargs)
-
+    ### MODEL SPECIFIC METHODS ### 
     def _establish__model(self, name): 
-        return os.path.join(self._data_dir, name, 'model.pkl')
+        return self.establish(name, FileManager._model_name)
     
-    def open_train(self, name, *args, **kwargs): 
-        # opens train set file and returns a handle to the train set file 
-        return TrainSet(self._establish_training(name), *args, **kwargs)
+    def load_model(self, name): 
+        return keras.models.load_model(self._establish__model(name))
 
-    def _establish_training(self, name): 
-        return os.path.join(self._data_dir, name, 'train.csv')
+    def save_model(self, model, name): 
+        model.save(self._establish__model(name), overwrite=True)
+
+    ### LOG SPECIFIC METHODS ### 
+    def establish_log(self): 
+        return self.establish(FileManager._log_name)
+
+    @property 
+    def log_file_path(self):    
+        return self.establish_log() 
+
+    def open_log(self, *args, **kwargs): 
+        return open(self.establish_log(), 'w', *args, **kwargs)
+
