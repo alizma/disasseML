@@ -57,14 +57,14 @@ class FileManager:
             file.write('\n')
 
     ### MODEL SPECIFIC METHODS ### 
-    def _establish__model(self, name): 
+    def establish__model(self, name): 
         return self.establish(name, FileManager._model_name)
     
     def load_model(self, name): 
-        return keras.models.load_model(self._establish__model(name))
+        return keras.models.load_model(self.establish__model(name))
 
     def save_model(self, model, name): 
-        model.save(self._establish__model(name), overwrite=True)
+        model.save(self.establish__model(name), overwrite=True)
 
     ### LOG SPECIFIC METHODS ### 
     def establish_log(self): 
