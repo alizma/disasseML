@@ -1,0 +1,9 @@
+#!/bin/bash
+
+here=$(dirname "$0")
+
+. "${here}/tools/common"
+
+[[ "${MLD_TRACE}" = "1" ]] && PYTHON_ARGS=("-m trace -l")
+
+time "${python}" ${PYTHON_ARGS} "${here}/src/trainer.py" $*
