@@ -3,7 +3,9 @@ DisasseML is a machine learning model that simulates a [disassembler](https://ww
 
 Recall that recurrent neural networks (RNNs) suffers from a lack of ability to handle long-term dependencies (vanishing gradient problem). In particular, when the gap between the relevant information and place where it's needed is small, RNNs may apply fairly well. Unfortunately, as this gap increases in size, RNNs are unable to connect relevant bits of information. [Bengio et al (1994)](https://ieeexplore.ieee.org/document/279181) explored the reasons behind RNNs' practical failures. This was also the subject of Hochreiter's 1991 thesis.
 
-To avoid the long-term dependency issues of RNNs, this model instead depends on short long-term memory networks (LSTMs), which are capable of learning long-term dependencies. An intuitive explanation of the success of LSTMs can be read [here](https://colah.github.io/posts/2015-08-Understanding-LSTMs/). Of course [some](https://www.youtube.com/watch?v=S27pHKBEp30) might argue that the choice of LSTMs in this domain is second to transformers. 
+To avoid the long-term dependency issues of RNNs, this model instead depends on short long-term memory networks (LSTMs), which are capable of learning long-term dependencies, to solve this seq2seq problem. An intuitive explanation of the success of LSTMs can be read [here](https://colah.github.io/posts/2015-08-Understanding-LSTMs/). As with [other Encoder-Decoder LSTMs]((https://arxiv.org/abs/1406.1078)), our architecture is comprised of two models: one that reads and encodes the input sequence, and a second that decodes the internal representation and outputs a prediction. As in [related research](https://arxiv.org/abs/1409.3215), a reversal of the order of words in the source sentence but not the target sentences in training and testing sets was found to be more effective. 
+
+Of course [some](https://www.youtube.com/watch?v=S27pHKBEp30) might argue that the choice of LSTMs in this domain is second to transformers. 
 
 ## Generating the training set 
 To create a training set with the OBJDUMP disassembler, use the command 
@@ -31,7 +33,7 @@ The command
 ```
 creates a single parameter grid and writes it to ``data/config.json``. This is particularly useful when there are few parameters to search or if all parameters are related and can be searched in one go. 
 
-One drawback of the current implementation is tha tif there are many, unrelated parameters to search, we do not provide a way to generate separate grids for the gridsearch. Finally, issues with regards speed and complexity in hyperparamter optimization could be solved by [hyperopt](https://hyperopt.github.io/hyperopt/). 
+One drawback of the current implementation is that if there are many, unrelated parameters to search, we do not provide a way to generate separate grids for the gridsearch. Finally, issues with regards speed and complexity in hyperparamter optimization could be solved by [hyperopt](https://hyperopt.github.io/hyperopt/). 
 
 ## Training, validating, and disassembling 
 After selecting the hyperparameters, the model can be trained with the following command: 
