@@ -1,5 +1,6 @@
 ## Overview 
-DisasseML is a machine learning model that simulates a [disassembler](https://www.wikiwand.com/en/Disassembler) by converting machine code into human-readable assembly code. 
+DisasseML is a machine learning model that simulates a [disassembler](https://www.wikiwand.com/en/Disassembler) by converting machine code into human-readable assembly code. Currently, the model has been trained to generate x86 assembly code using both AT&T and Intel syntaxes, although it could be extended further to other assembly languages, such as ARM. 
+
 
 ## Generating the training set 
 To create a training set with the OBJDUMP disassembler, use the command 
@@ -27,7 +28,102 @@ The command
 ```
 creates a single parameter grid and writes it to ``data/config.json``. This is particularly useful when there are few parameters to search or if all parameters are related and can be searched in one go. 
 
+One drawback of the current implementation is tha tif there are many, unrelated parameters to search, we do not provide a way to generate separate grids for the gridsearch. Finally, issues with regards speed and complexity in hyperparamter optimization could be solved by [hyperopt](https://hyperopt.github.io/hyperopt/). 
+
+## Training, validating, and disassembling 
+After selecting the hyperparameters, the model can be trained with the following command: 
+```shell
+./train <model name>
+```
+and can be validated on unseen data using 
+```shell
+python src/validator.py <model name>
+```
+
+In spite of the instruction boundary issues discussed earlier, the "alpha" version of the disassembler can be invoked using 
+```shell 
+./disasseml <model name> <binary> 
+```
+Note that valid model names here are ``att`` and ``intel``. 
+
+To get a binary file from a program, OBJCOPY can be used as usual: 
+```shell 
+objcopy -O binary <input file> <output file>
+```
+
 ## Configuration
+
+DisasseML is configured using a JSON file stored in ``data/config.json``. For example, 
+
+``data/config.json``
+
+```javascript 
+{
+    // Maximum number of records during training.
+    "max_records":               100000,
+    // Maximum number of records during hyperparameter selection (gridsearch).
+    "gs_records":                10000,
+    // Overrideable model parameters.
+    "model":{
+        // Classifier performance metrics.
+        "metrics":               ["accuracy"],
+        // Input sequence length.
+        "x_seq_len":             15,
+        // Output sequence length.
+        "y_seq_len":             64,
+        // Mask value.
+        "mask_value":            null,
+        // Batch size.
+        "batch_size":            100,
+        // Number of training epochs.
+        "epochs":                100,
+        // Number of cross-validation folds.
+        "kfolds":                10,
+        // Whether to shuffle indices during cross-validation.
+        "shuffle":               true,
+        // Dimensionality of input space.
+        "input_size":            256,
+        // Number of hidden units per recurrent layer.
+        "hidden_size":           256,
+        // Dimensionality of the output space.
+        "output_size":           128,
+        // Type of recurrent unit (lstm, gru or rnn).
+        "recurrent_unit":        "lstm",
+        // Number of recurrent layers in the encoder.
+        "encoder_layers":        1,
+        // Number of recurrent layers in the decoder.
+        "decoder_layers":        1,
+        // Activation function to use in recurrent layers.
+        "recurrent_activation":  "tanh",
+        // Whether to use bias vectors in recurrent units.
+        "recurrent_use_bias":    true,
+        // Whether to use bias in the LSTM forget gate (has no effect if recurrent_unit is not "lstm").
+        "recurrent_forget_bias": true,
+        // Dropout rate between recurrent layers.
+        "dropout":               0,
+        // Dropout rate within recurrent sequences.
+        "recurrent_dropout":     0,
+        // Activation of the dense layer.
+        "dense_activation":     "softmax",
+        // Loss function.
+        "loss":                 "categorical_crossentropy",
+        // Optimizer.
+        "optimizer":            "Adam",
+        // Parameters to the optimizer.
+        "opt_params": {
+            // Learning rate.
+            "lr": 0.001
+        }
+    },
+    // Gridsearch parameter grid (inline). Listed values are combined and each combination overrides values in 'model'
+    // during hyperparameter selection..
+    "grid": {
+        "hidden_size":    [64,128,256,512],
+        "encoder_layers": [1,2,3],
+        "decoder_layers": [1,2,3]
+    }
+}
+```
 
 ## Dependencies 
 
