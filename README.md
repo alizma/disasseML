@@ -16,11 +16,11 @@ The issue with using the NDISASM diassembler is reflective of the short-comings 
 At present, the ``tools/gen-train-auto`` script lacks a preprocessing step, this will be added in due course. 
 
 ## Hyperparameter Optimization 
-To tune the model's hyperparameters without training, we rely on a traditional gridsearch approach.  First create the file ``data/config.json`` with default values (as described in the Configuration above). A potential improvement for this implementation would be using [Talos](https://github.com/autonomio/talos) or other standardized tools. In particular, the gridsearch implementation adds complexity that this library could reduce. 
+To tune the model's hyperparameters without training, we rely on a traditional gridsearch approach.  First create the file ``data/config.json`` with default values (as described in the Configuration section below). A potential improvement for this implementation would be using [Talos](https://github.com/autonomio/talos) or other standardized tools. In particular, the gridsearch implementation adds complexity that this library could reduce. 
 
-The parameter grid can be created as follows. Additional functionality could come from splitting the grid across multiple files with another script, but we do not provide it here. Further improvements could be made from other hyperparameter optimization protocols, such as [random searches](https://docs.ray.io/en/latest/tune/index.html) or Bayesian optimization layers (as provided as part of scikit-learn).
+The parameter grid can be created as follows. Additional functionality could come from splitting the grid across multiple files with another script, but we do not provide it here. Further improvements could be made from other hyperparameter optimization protocols, such as [random searches](https://docs.ray.io/en/latest/tune/index.html) or Bayesian optimization layers (as provided as part of [scikit-learn](https://scikit-learn.org/stable/modules/grid_search.html)).
 
-## Entire grid in single file with ``tune``
+### Entire grid in single file with ``tune``
 The command 
 ```shell
 ./tune <model name> 
@@ -39,24 +39,15 @@ The following are required to generate the training set:
 
 * `NASM` (`ndisasm`, for Intel syntax)
 
-* `Python 3.6`
-
-## Training and Running the model
-
-The following were used to run the model.
-
-### Necessary dependencies
-
-The following are vital and the program won't run without them. Different versions may work though. These packages can all be installed using the Python pacakge manager, `pip`.
+The following are vital and the model won't run without them. Different versions may work though. These packages can all be installed using the Python package manager.
 
 * `Python 3.6`
 
-* `tensorflow-gpu 1.10.0` &ndash; machine learning backend (NB: there is a patch to be applied (see next section) which only applies to `TensorFlow 1.10.0`, consequently other versions of TensorFlow **will not work**)
+* `tensorflow-gpu 1.10.0` &ndash; machine learning backend 
 
 * `numpy 1.14.5` &ndash; for CPU-based mathematics
 
 * `h5py 2.8.0` &ndash; for saving and loading Keras models
-
 
 ## System-Specific Concerns  
 Since this repo's structure contains a ``/src/`` folder with the code, VSCode may throw unresolved import errors. This can be fixed as described in [this post](https://github.com/microsoft/python-language-server/blob/master/TROUBLESHOOTING.md#unresolved-import-warnings). 

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+python=$(which python3)
+
+[[ "${MLD_PYTHON}" != "" ]] && python="${MLD_PYTHON}"
+
+if [[ ! -x $(which "${python}") ]]; then
+    echo "$0: ${python} does not name an executable file" >&2
+    exit 1
+fi
+
+# Directories.
+data_dir="$(pwd)/data"
+model_dir="${data_dir}/${model_name}"
+log_dir="${model_dir}/logs"
+grid_dir="${model_dir}/grids"
+
+# Files.
+log_path="${data_dir}/mldisasm.log"
+config_path="${model_dir}/config.json"
+config_bak="${config_path}~"
