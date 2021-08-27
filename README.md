@@ -1,6 +1,9 @@
 ## Overview 
-DisasseML is a machine learning model that simulates a [disassembler](https://www.wikiwand.com/en/Disassembler) by converting machine code into human-readable assembly code. Currently, the model has been trained to generate x86 assembly code using both AT&T and Intel syntaxes, although it could be extended further to other assembly languages, such as ARM. 
+DisasseML is a machine learning model that simulates a [disassembler](https://www.wikiwand.com/en/Disassembler) by converting machine code into human-readable assembly code. Currently, the model has been trained to generate x86 assembly code using both AT&T and Intel syntaxes, although it could be extended further to other assembly languages, such as ARM. The project was inspired by [Andrew Davis' Black Hat 2015 talk](https://www.youtube.com/watch?v=LQh8dktQReI), although he focused primarily on malware identification, a potential application of the model implemented here. 
 
+Recall that recurrent neural networks (RNNs) suffers from a lack of ability to handle long-term dependencies (vanishing gradient problem). In particular, when the gap between the relevant information and place where it's needed is small, RNNs may apply fairly well. Unfortunately, as this gap increases in size, RNNs are unable to connect relevant bits of information. [Bengio et al (1994)](https://ieeexplore.ieee.org/document/279181) explored the reasons behind RNNs' practical failures. This was also the subject of Hochreiter's 1991 thesis.
+
+To avoid the long-term dependency issues of RNNs, this model instead depends on short long-term memory networks (LSTMs), which are capable of learning long-term dependencies. An intuitive explanation of the success of LSTMs can be read [here](https://colah.github.io/posts/2015-08-Understanding-LSTMs/). Of course [some](https://www.youtube.com/watch?v=S27pHKBEp30) might argue that the choice of LSTMs in this domain is second to transformers. 
 
 ## Generating the training set 
 To create a training set with the OBJDUMP disassembler, use the command 
@@ -9,7 +12,7 @@ tools/gen-train-auto -o <model-name>
 ```
 while the following command will generate a training set with the [NDISASM](https://linux.die.net/man/1/ndisasm) diassembler: 
 ```shell 
-tools/gen-train-auto -o <model-name>
+tools/gen-train-auto -n <model-name>
 ```
 
 The issue with using the NDISASM diassembler is reflective of the short-comings of the disasseML project as a whole. Namely, x86 machine code is variable-length and needs to be decoded from the correct starting address to be valid. Since NDISASM includes metadata in its disassembling process for instructions, if the last couple of bytes of metadata decode as the beginning of a long instruction, NDISASM will decode them as such. Obviously this is a substantial risk for the rest of the machine code; the current position may be in the middle of another instruction. For further discussion of this issue and possible solutions, see [this Stack Overflow post](https://stackoverflow.com/questions/47420776/using-ndisasm-in-files-of-different-architectures).
